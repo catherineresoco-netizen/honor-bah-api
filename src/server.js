@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {openDb} from './db.js';
+import {datasetStatus} from './readiness.js';
+import {ensureOfficialDataset} from '../scripts/ensure-official.js';
 import {parseQuery,lookup} from './lookup.js';
 import {getKey,consume,PLANS} from './auth.js';
 import {signup,login,startSession,getSession,endSession,createDeveloperKey,listDeveloperKeys,revokeDeveloperKey} from './accounts.js';
@@ -104,6 +106,7 @@ export function createServer(db,env=process.env){
   if(req.method!=='GET') return send(res,405,{error:'METHOD_NOT_ALLOWED'});
   if(serveSite(res,url.pathname)) return;
   if(url.pathname==='/health') return send(res,200,{status:'ok',service:'honor-bah-api'});
+  if(url.pathname==='/ready'){const state=datasetStatus(db);return send(res,state.ready?200:503,{status:state.ready?'ready':'not_ready',...state});}
   if(url.pathname!=='/v1/bah'&&url.pathname!=='/v1/usage') return send(res,404,{error:'NOT_FOUND'});
   if(operatingMode(env)==='rapidapi'){
     // Never expose direct-plan usage or account routes through the marketplace.
@@ -131,18 +134,18 @@ export function createServer(db,env=process.env){
  });
 }
 if(process.argv[1]&&fileURLToPath(import.meta.url)===fileURLToPath(new URL(`file://${process.argv[1].replaceAll('\\','/')}`))){
- if (
-  process.env.API_MODE === 'rapidapi' &&
-  !process.env.RAPIDAPI_PROXY_SECRET
-) {
-  console.error('Refusing to start: RAPIDAPI_PROXY_SECRET is required.');
-  process.exit(1);
-}
+ if(process.env.API_MODE==='rapidapi' && !process.env.RAPIDAPI_PROXY_SECRET){
+   console.error('Refusing to start: RAPIDAPI_PROXY_SECRET is required.');
+   process.exit(1);
+ }
+ if(process.env.API_MODE==='rapidapi'){
+   try {ensureOfficialDataset();} catch(e) {console.error('BAH initialization failed:',e.message);process.exit(1);}
+ }
  const db=openDb();
  const port=Number(process.env.PORT||3000);
  const server=createServer(db);
  const host=process.env.HOST||(process.env.API_MODE==='rapidapi'?'0.0.0.0':'127.0.0.1');
- server.listen(port,host,()=>console.log(`Honor BAH API v0.6 listening on ${host}:${port} (mode: ${operatingMode(process.env)})`));
+ server.listen(port,host,()=>console.log(`Honor BAH API v0.7 listening on ${host}:${port} (mode: ${operatingMode(process.env)})`));
  const stop=()=>server.close(()=>{db.close();process.exit(0);});
  process.on('SIGINT',stop);process.on('SIGTERM',stop);
 }

@@ -1,3 +1,7 @@
+# Honor BAH API v0.7
+
+**Render/RapidAPI launch-readiness update:** See [RENDER-RAPIDAPI-v0.7.md](RENDER-RAPIDAPI-v0.7.md). The verified DoD archive is bundled to repair missing official rate data automatically when starting in RapidAPI mode. Data freshness and paid uptime are not guaranteed.
+
 # Honor BAH API — v0.6 (RapidAPI integration preparation)
 
 See **RAPIDAPI-LAUNCH.md** for tested Windows commands, RapidAPI security configuration, deployment prerequisites and publishing instructions.

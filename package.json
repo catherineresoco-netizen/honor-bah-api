@@ -1,8 +1,8 @@
 {
   "name": "honor-bah-api",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
-  "description": "Local-first standalone BAH lookup API prototype",
+  "description": "Honor BAH developer API with verified offline bootstrap and RapidAPI gateway mode",
   "type": "module",
   "engines": {
     "node": ">=22.13.0"
@@ -19,6 +19,7 @@
     "keys:create": "node scripts/keys.js create",
     "keys:list": "node scripts/keys.js list",
     "keys:revoke": "node scripts/keys.js revoke",
-    "backup": "node scripts/backup-db.js"
+    "backup": "node scripts/backup-db.js",
+    "data:ensure": "node scripts/ensure-official.js"
   }
 }

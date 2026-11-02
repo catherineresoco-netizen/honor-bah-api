@@ -39,7 +39,21 @@ export function openDb(file = DB_FILE) {
       count INTEGER NOT NULL DEFAULT 0 CHECK(count>=0),
       PRIMARY KEY(key_id,month)
     );
+    CREATE TABLE IF NOT EXISTS developers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS sessions (
+      token_hash TEXT PRIMARY KEY,
+      developer_id INTEGER NOT NULL REFERENCES developers(id) ON DELETE CASCADE,
+      expires_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS idx_rates_lookup ON rates(year,mha,grade,dependents);
   `);
+  const cols=db.prepare('PRAGMA table_info(api_keys)').all().map(c=>c.name);
+  if(!cols.includes('developer_id')) db.exec('ALTER TABLE api_keys ADD COLUMN developer_id INTEGER REFERENCES developers(id)');
   return db;
 }

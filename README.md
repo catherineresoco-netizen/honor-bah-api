@@ -1,4 +1,10 @@
-# Honor BAH API — v0.3 (nationwide BAH + developer API keys)
+# Honor BAH API — v0.6 (RapidAPI integration preparation)
+
+See **RAPIDAPI-LAUNCH.md** for tested Windows commands, RapidAPI security configuration, deployment prerequisites and publishing instructions.
+
+Run `npm.cmd test` and `npm.cmd start` locally. The v0.6 package includes official 2026 BAH data.
+
+## Earlier local-development instructions (v0.3–v0.5)
 
 Independent developer API prototype. Local-only with locally managed developer API keys, monthly quotas and usage reporting. No hosting, signup website, or real billing yet.
 
@@ -153,3 +159,49 @@ Open **http://localhost:3000/** in your browser. This serves the website and API
 The standalone static website files are in `docs/` (`index.html`, `style.css`, `main.js`). In GitHub, create a **separate** repository named `honor-bah-api`, upload only safe source files, and configure **Settings → Pages → Deploy from a branch → main /docs**. GitHub Pages will publish the marketing pages and documentation, but **the interactive dashboard is intentionally disabled on GitHub Pages**. It will not be able to reach your laptop's localhost API. The backend remains local and should not be made public until properly secured and deployed.
 
 **Never upload** `data/bah.sqlite` from your working machine to GitHub (it can contain private API key hashes and usage data); `.gitignore` excludes the file by default. Never upload `.env`, copied live keys, or screenshots showing keys. The website's prices are proposals, not active subscription offerings, and the site's metrics describe the imported 2026 dataset, not real-time guarantees.
+
+## Phase 5A — Local developer accounts (v0.5)
+
+**No paid hosting or billing required.** Open the new **Account** section at
+`http://localhost:3000/#accounts` to register a local test developer email and
+password (12+ characters), sign in, create up to five Free-plan API keys, view
+usage for each key, revoke keys, and sign out. Each newly created key appears
+**only once**. The dashboard also supports API-key-based usage checks.
+
+Run on Windows PowerShell from the extracted `honor-bah-api` directory:
+
+```powershell
+npm.cmd test
+npm.cmd start
+```
+
+The packaged `data/bah.sqlite` contains the official 2026 DoD data and starts
+without user accounts. If you already have a database with real accounts or keys,
+**back it up first**; the database path is configurable with `DB_FILE`.
+The new database schema adds account tables and upgrades prior `api_keys`
+tables in place; existing CLI-issued keys remain usable but are **not assigned**
+to any self-service account. Do not overwrite the old database if you intend to
+retain those keys and request counts.
+
+Security design: password hashes use scrypt with unique salts, account sessions
+use short-lived (8h) HttpOnly SameSite=Strict cookies, API keys are stored as
+SHA-256 digests, and the self-service routes only accept loopback connections.
+State-changing account operations require a same-origin Origin header and a
+custom CSRF header. Password login has a small per-IP failure limit. The public
+GitHub Pages brochure **cannot accept login or passwords**. These controls are
+appropriate for a **local prototype**, not a production identity service. Public
+hosting would require HTTPS, durable rate limiting, email verification, password
+reset flows, audit logging, robust session and account recovery, and a security
+review. Don't expose port 3000 to the internet.
+
+To disable new registrations in PowerShell before starting:
+
+```powershell
+$env:ENABLE_LOCAL_SIGNUP = "0"
+npm.cmd start
+```
+
+**GitHub source:** Only publish the safe source package, which excludes
+`data/bah.sqlite`, `.env`, sessions and any secrets. After adding the new site
+files under `docs/`, GitHub Pages updates the marketing site but intentionally
+disables the live account console.

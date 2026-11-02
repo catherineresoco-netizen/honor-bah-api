@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Honor BAH API
+  version: 0.6.0
+  description: Published DoD Basic Allowance for Housing rate lookup by duty-station ZIP code. Not an individual entitlement determination. Not endorsed by DoD.
+servers:
+  - url: https://REPLACE-WITH-YOUR-DEPLOYED-API-HOST
+paths:
+  /v1/bah:
+    get:
+      summary: Look up published BAH rate
+      operationId: getBah
+      description: Marketplace subscribers authenticate with RapidAPI's gateway. Do not pass the provider's proxy secret from client code.
+      parameters:
+        - in: query
+          name: zip
+          required: true
+          schema: { type: string, pattern: '^[0-9]{5}$' }
+          description: ZIP of the permanent duty station, not necessarily the rented property
+          example: '92136'
+        - in: query
+          name: grade
+          required: true
+          schema: { type: string }
+          example: E-5
+        - in: query
+          name: dependents
+          required: true
+          schema: { type: boolean }
+          example: true
+        - in: query
+          name: year
+          required: true
+          schema: { type: integer }
+          example: 2026
+      responses:
+        '200':
+          description: Published rate record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zip_code: { type: string }
+                  year: { type: integer }
+                  pay_grade: { type: string }
+                  with_dependents: { type: boolean }
+                  monthly_bah: { type: integer }
+                  annual_bah: { type: integer }
+                  currency: { type: string, example: USD }
+                  dataset_type: { type: string, enum: [official, demo] }
+        '400': { description: Invalid query parameters }
+        '403': { description: Gateway request not verified at origin }
+        '404': { description: ZIP, year, or rate unavailable }

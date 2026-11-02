@@ -1,6 +1,6 @@
 {
   "name": "honor-bah-api",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Local-first standalone BAH lookup API prototype",
   "type": "module",
@@ -18,6 +18,7 @@
     "update:file": "node scripts/update-dod.js",
     "keys:create": "node scripts/keys.js create",
     "keys:list": "node scripts/keys.js list",
-    "keys:revoke": "node scripts/keys.js revoke"
+    "keys:revoke": "node scripts/keys.js revoke",
+    "backup": "node scripts/backup-db.js"
   }
 }

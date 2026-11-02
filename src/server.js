@@ -131,10 +131,13 @@ export function createServer(db,env=process.env){
  });
 }
 if(process.argv[1]&&fileURLToPath(import.meta.url)===fileURLToPath(new URL(`file://${process.argv[1].replaceAll('\\','/')}`))){
- if(process.env.API_MODE==='rapidapi' && (!process.env.RAPIDAPI_PROXY_SECRET || process.env.RAPIDAPI_PROXY_SECRET.length<32)){
-   console.error('Refusing to start: RAPIDAPI_PROXY_SECRET must contain at least 32 characters in rapidapi mode.');
-   process.exit(1);
- }
+ if (
+  process.env.API_MODE === 'rapidapi' &&
+  !process.env.RAPIDAPI_PROXY_SECRET
+) {
+  console.error('Refusing to start: RAPIDAPI_PROXY_SECRET is required.');
+  process.exit(1);
+}
  const db=openDb();
  const port=Number(process.env.PORT||3000);
  const server=createServer(db);

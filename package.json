@@ -1,0 +1,23 @@
+{
+  "name": "honor-bah-api",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Local-first standalone BAH lookup API prototype",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "seed:demo": "node scripts/import-csv.js --demo",
+    "import": "node scripts/import-csv.js",
+    "test": "node --test",
+    "update:check": "node scripts/update-dod.js --check",
+    "update:apply": "node scripts/update-dod.js",
+    "update:file": "node scripts/update-dod.js",
+    "keys:create": "node scripts/keys.js create",
+    "keys:list": "node scripts/keys.js list",
+    "keys:revoke": "node scripts/keys.js revoke"
+  }
+}
